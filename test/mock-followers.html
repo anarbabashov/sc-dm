@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock SoundCloud Followers</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f2f2f2;
+        }
+        .header {
+            background: #ff5500;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .userNav {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .userNav img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #333;
+        }
+        .followers-list {
+            background: white;
+            padding: 20px;
+            min-height: 2000px;
+        }
+        .follower-item {
+            padding: 15px;
+            border-bottom: 1px solid #e5e5e5;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        .follower-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        .follower-info h3 {
+            margin: 0 0 5px 0;
+        }
+        .follower-info p {
+            margin: 0;
+            color: #999;
+            font-size: 14px;
+        }
+        a {
+            color: #ff5500;
+            text-decoration: none;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .banner {
+            background: #ffffcc;
+            border: 2px solid #ff5500;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <strong>🧪 MOCK TEST PAGE</strong> - This simulates your SoundCloud followers page.
+        The script will extract profile links from this page.
+    </div>
+
+    <div class="header">
+        <div class="userNav">
+            <img src="" alt="avatar" class="userImage">
+            <span>Mock SoundCloud - Logged In</span>
+        </div>
+    </div>
+
+    <div class="followers-list">
+        <h1>Followers</h1>
+
+        <!-- Valid follower profiles -->
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-1">Test User 1</a></h3>
+                <p>Electronic music producer</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-2">Test User 2</a></h3>
+                <p>Hip-hop beats</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-3">Test User 3</a></h3>
+                <p>Indie rock artist</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-4">Test User 4</a></h3>
+                <p>Lo-fi producer</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-5">Test User 5</a></h3>
+                <p>Jazz fusion</p>
+            </div>
+        </div>
+
+        <!-- User with messaging disabled (will skip) -->
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-no-message">Test User No Message</a></h3>
+                <p>Profile without message button</p>
+            </div>
+        </div>
+
+        <!-- These should be excluded by the script -->
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/you">You</a></h3>
+                <p>Your own profile (should be excluded)</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-1/tracks">Tracks Link</a></h3>
+                <p>Should be excluded</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-2/likes">Likes Link</a></h3>
+                <p>Should be excluded</p>
+            </div>
+        </div>
+
+        <!-- More valid profiles for testing scroll -->
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-6">Test User 6</a></h3>
+                <p>Ambient soundscapes</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-7">Test User 7</a></h3>
+                <p>Techno DJ</p>
+            </div>
+        </div>
+
+        <div class="follower-item">
+            <div class="follower-avatar"></div>
+            <div class="follower-info">
+                <h3><a href="/test-user-8">Test User 8</a></h3>
+                <p>Singer-songwriter</p>
+            </div>
+        </div>
+
+        <p style="text-align: center; padding: 40px; color: #999;">
+            End of followers list
+        </p>
+    </div>
+
+    <script>
+        // Simulate infinite scroll behavior
+        let scrollCount = 0;
+        window.addEventListener('scroll', () => {
+            if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+                scrollCount++;
+                console.log('Scroll detected:', scrollCount);
+            }
+        });
+    </script>
+</body>
+</html>

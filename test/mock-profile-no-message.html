@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock User Profile - No Message</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f2f2f2;
+        }
+        .header {
+            background: #ff5500;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .banner {
+            background: #ffcccc;
+            border: 2px solid #ff0000;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .profile {
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+        }
+        .profile-header {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        .profile-info h1 {
+            margin: 0 0 10px 0;
+        }
+        .profile-info p {
+            color: #999;
+            margin: 5px 0;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-follow {
+            background: #e5e5e5;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <strong>🧪 MOCK PROFILE - NO MESSAGE BUTTON</strong>
+        <br>This profile does NOT have a message button. The script should skip it.
+    </div>
+
+    <div class="header">
+        <div style="color: white;">Mock SoundCloud Profile</div>
+    </div>
+
+    <div class="profile">
+        <div class="profile-header">
+            <div class="avatar"></div>
+            <div class="profile-info">
+                <h1>test-user-no-message</h1>
+                <p>Independent Artist</p>
+                <p>🎵 Messages disabled</p>
+                <p>📍 Test City</p>
+
+                <div class="actions">
+                    <!-- NO MESSAGE BUTTON HERE -->
+                    <button class="btn-follow">Follow</button>
+                </div>
+            </div>
+        </div>
+
+        <h2>Recent Tracks</h2>
+        <p style="color: #999;">No tracks uploaded yet</p>
+    </div>
+</body>
+</html>

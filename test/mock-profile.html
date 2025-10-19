@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mock User Profile</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f2f2f2;
+        }
+        .header {
+            background: #ff5500;
+            color: white;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        .banner {
+            background: #ffffcc;
+            border: 2px solid #ff5500;
+            padding: 15px;
+            margin-bottom: 20px;
+            border-radius: 5px;
+        }
+        .profile {
+            background: white;
+            padding: 30px;
+            border-radius: 5px;
+        }
+        .profile-header {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            margin-bottom: 30px;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            background: #ddd;
+        }
+        .profile-info h1 {
+            margin: 0 0 10px 0;
+        }
+        .profile-info p {
+            color: #999;
+            margin: 5px 0;
+        }
+        .actions {
+            margin-top: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .btn-message {
+            background: #ff5500;
+            color: white;
+        }
+        .btn-follow {
+            background: #e5e5e5;
+            color: #333;
+        }
+        .message-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            z-index: 1000;
+            min-width: 400px;
+        }
+        .message-modal.active {
+            display: block;
+        }
+        .overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 999;
+        }
+        .overlay.active {
+            display: block;
+        }
+        textarea {
+            width: 100%;
+            min-height: 100px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        .modal-actions {
+            margin-top: 15px;
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+        .btn-send {
+            background: #ff5500;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .btn-cancel {
+            background: #e5e5e5;
+            color: #333;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .success-message {
+            display: none;
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .success-message.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="banner">
+        <strong>🧪 MOCK PROFILE PAGE</strong> - Username: <span id="username-display"></span>
+        <br>The script will click "Message", type in the composer, and send.
+    </div>
+
+    <div class="header">
+        <div style="color: white;">Mock SoundCloud Profile</div>
+    </div>
+
+    <div class="profile">
+        <div class="profile-header">
+            <div class="avatar"></div>
+            <div class="profile-info">
+                <h1 id="username"></h1>
+                <p>Independent Artist</p>
+                <p>🎵 Electronic / Ambient / Experimental</p>
+                <p>📍 Test City</p>
+
+                <div class="actions">
+                    <button class="btn-message" id="message-btn" aria-label="Send message">Message</button>
+                    <button class="btn-follow">Follow</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="success-message" id="success-msg">
+            ✅ Message sent successfully!
+        </div>
+
+        <h2>Recent Tracks</h2>
+        <p style="color: #999;">No tracks uploaded yet</p>
+    </div>
+
+    <div class="overlay" id="overlay"></div>
+    <div class="message-modal" id="message-modal">
+        <h3>Send a message</h3>
+        <textarea id="message-composer" placeholder="Write your message..." role="textbox"></textarea>
+        <div class="modal-actions">
+            <button class="btn-cancel" id="cancel-btn">Cancel</button>
+            <button class="btn-send" id="send-btn">Send</button>
+        </div>
+    </div>
+
+    <script>
+        // Get username from URL
+        const path = window.location.pathname;
+        const username = path.split('/').filter(Boolean).pop() || 'test-user';
+        document.getElementById('username').textContent = username;
+        document.getElementById('username-display').textContent = username;
+
+        const messageBtn = document.getElementById('message-btn');
+        const modal = document.getElementById('message-modal');
+        const overlay = document.getElementById('overlay');
+        const composer = document.getElementById('message-composer');
+        const sendBtn = document.getElementById('send-btn');
+        const cancelBtn = document.getElementById('cancel-btn');
+        const successMsg = document.getElementById('success-msg');
+
+        // Open message modal
+        messageBtn.addEventListener('click', () => {
+            modal.classList.add('active');
+            overlay.classList.add('active');
+            setTimeout(() => composer.focus(), 100);
+            console.log('Message button clicked');
+        });
+
+        // Close modal
+        const closeModal = () => {
+            modal.classList.remove('active');
+            overlay.classList.remove('active');
+        };
+
+        cancelBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+
+        // Send message
+        sendBtn.addEventListener('click', () => {
+            const message = composer.value;
+            console.log('Message sent:', message);
+
+            // Simulate sending
+            closeModal();
+            successMsg.classList.add('show');
+            composer.value = '';
+
+            // Hide success message after 3s
+            setTimeout(() => {
+                successMsg.classList.remove('show');
+            }, 3000);
+        });
+
+        // Also support Enter key to send
+        composer.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendBtn.click();
+            }
+        });
+    </script>
+</body>
+</html>
