@@ -1,414 +1,276 @@
-# SoundCloud DM Worker
+# SoundCloud DM Sender
 
-Robust Puppeteer automation to send direct messages to your SoundCloud followers. Single-file, human-like behavior, conservative timing to avoid anti-bot detection.
+Automated tool to send personalized direct messages to SoundCloud followers using Tampermonkey.
 
-## Features
+## 📁 Project Structure
 
-- **Message personalization** - use `{nickname}` to insert follower's username
-- **Duplicate prevention** - automatic history tracking, never messages the same user twice
-- **Persistent session** - log in once, session saved forever
-- **Chrome browser support** - use your existing Chrome to avoid login issues
-- **Human-like behavior** - realistic typing delays, mouse movements, random pauses
-- **Conservative timing** - 30s-5min delays between users, occasional longer breaks
-- **Automated scheduling** - cron integration for hands-free operation
-- **Robust selectors** - multiple fallback strategies for Message/Send buttons
-- **Error handling** - automatic screenshots on failure, graceful degradation
-- **Captcha detection** - stops execution if anti-bot measures detected
-- **Sequential processing** - one user at a time, no mass parallelism
-- **Mock testing** - test locally before running on real followers
-
-## Requirements
-
-- Node.js 18+
-- npm or pnpm
-
-## Installation
-
-```bash
-npm install
-# or
-pnpm install
+```
+sc-dm/
+├── all-in-one.user.js           # Main Tampermonkey script (sends DMs)
+├── semi-auto-script.js          # Script to collect follower data
+├── followers.json               # Your 2170 followers data
+├── tampermonkey-minimal-test.js # Test script
+└── test/                        # Test files
 ```
 
-Dependencies:
-- `puppeteer-extra`
-- `puppeteer-extra-plugin-stealth`
-- `dotenv`
+## 🚀 Quick Start
 
-## Setup
+### Step 1: Collect Followers (Optional - already done!)
 
-1. Copy `.env.example` to `.env`:
-   ```bash
-   cp .env.example .env
+You already have `followers.json` with 2170 followers, so **skip this step**.
+
+If you need to update your followers list:
+1. Go to https://soundcloud.com/YOUR_USERNAME/followers
+2. Open Console (F12)
+3. Paste `semi-auto-script.js` content
+4. Type: `getAllFollowers()`
+5. Copy the output to `followers.json`
+
+### Step 2: Install Tampermonkey
+
+- **Chrome**: https://chrome.google.com/webstore/detail/tampermonkey/
+- **Firefox**: https://addons.mozilla.org/firefox/addon/tampermonkey/
+
+### Step 3: Install the Script
+
+1. **Drag and drop** `all-in-one.user.js` into your browser
+   - Or press **Cmd+O** → select `all-in-one.user.js`
+2. Click **Install** when Tampermonkey prompts
+3. Done! ✅
+
+### Step 4: Send Messages
+
+1. Go to **https://soundcloud.com**
+2. Open Console (F12)
+3. Type:
+   ```javascript
+   start()      // Send to 2 users
+   start(10)    // Send to 10 users
+   start(100)   // Send to 100 users
    ```
 
-2. Edit `.env` with your configuration:
-   ```env
-   MESSAGE=Your message here
-   MAX_PER_RUN=5
-   FOLLOWERS_URL=https://soundcloud.com/andygart/followers
-   ```
+The script will automatically:
+- Navigate to each follower's profile
+- Click Message button
+- Type personalized message with their nickname
+- Send the message
+- Move to next user
+- Track who was messaged (no duplicates)
 
-### Message Personalization
+## 📝 Commands
 
-You can personalize messages with the follower's username using placeholders:
+| Command | What it does |
+|---------|-------------|
+| `start()` | Start sending (default: 2 users) |
+| `start(N)` | Send to N users |
+| `stop()` | Stop automation |
+| `checkStatus()` | View progress |
+| `viewHistory()` | See who was messaged |
+| `clearHistory()` | Clear ALL history |
+| `removeFromHistory("/username")` | Remove one user from history |
+| `showLogs()` | Show log overlay on page |
+| `hideLogs()` | Hide log overlay |
+| `clearLogs()` | Clear log history |
+| `testSendClick()` | Test if Send button works |
+| `findSendButton()` | Debug Send button detection |
 
-```env
-# Use {nickname}, {username}, {name}, or {user}
-MESSAGE=Hey {nickname}! Thanks for following.
+## ⚙️ Configuration
+
+Edit inside `all-in-one.user.js`:
+
+```javascript
+const CONFIG = {
+    MESSAGE: `Your message here with {nickname} placeholder`,
+    MAX_PER_RUN: 2,              // Users per start()
+    TYPING_DELAY_MIN: 35,        // Human-like typing (ms)
+    TYPING_DELAY_MAX: 95,
+    DELAY_BEFORE_NEXT: 30000,    // Wait 30s between users
+};
 ```
 
-**Example:**
-- Profile: `/johndoe`
-- Message template: `Hey {nickname}! Check out my new track.`
-- Actual message sent: `Hey johndoe! Check out my new track.`
+## 🔍 Message Personalization
 
-**Supported placeholders:**
-- `{nickname}` - Most natural (recommended)
+Use these placeholders in your message:
+- `{nickname}` - User's display name (e.g., "DJ Johnny K")
 - `{username}` - Same as nickname
 - `{name}` - Same as nickname
 - `{user}` - Same as nickname
 
-All placeholders are **case-insensitive** (`{NICKNAME}`, `{Nickname}`, `{nickname}` all work).
-
-## Testing with Mock Data
-
-**Recommended:** Test the script locally before running on real SoundCloud.
-
-### Quick Test
-
-Terminal 1 - Start mock server:
-```bash
-npm run test:server
+**Example:**
+```javascript
+MESSAGE: `Hey {nickname}, the new Tonica is out!
+If you are reading this, it means you appreciate true sound...`
 ```
 
-Terminal 2 - Run worker against mock data:
-```bash
-npm run test:worker
+Sends:
+```
+Hey DJ Johnny K, the new Tonica is out!
+If you are reading this, it means you appreciate true sound...
 ```
 
-This will:
-- Serve mock SoundCloud pages at `http://localhost:3000`
-- Run the worker against 3 mock profiles
-- Let you verify the full flow (scroll, extract, message, send)
-- No risk of hitting SoundCloud rate limits or captchas
+## 📊 Data Format
 
-See [test/README.md](test/README.md) for detailed testing guide.
-
-## Usage
-
-### Manual Run
-
-```bash
-node worker.js
-# or
-npm start
-```
-
-### Automated Scheduling (Recommended)
-
-Set up automatic runs 6 times/day (9 AM - 11 PM):
-
-```bash
-npm run cron:setup
-```
-
-**Schedule:** 9AM, 12PM, 3PM, 6PM, 9PM, 11PM
-**Volume:** 120 users/day (6 runs × 20 users)
-**Timeline:** ~17 days for 2000 users
-
-**Manage automation:**
-```bash
-npm run cron:list    # View installed jobs
-npm run logs         # Monitor runs in real-time
-npm run cron:remove  # Stop automation
-```
-
-See [CRON.md](CRON.md) for complete automation guide.
-
-### First Run
-
-On first run, the script will:
-1. Launch a browser window (headful mode)
-2. Navigate to your followers page
-3. Detect you're not logged in
-4. Pause and wait for you to log in manually
-5. Once logged in, your session is saved to `./profile-andygart/`
-6. Subsequent runs will reuse this session
-
-### What It Does
-
-1. Opens your SoundCloud followers page
-2. Auto-scrolls for up to 60s to load follower profiles
-3. Extracts unique profile links (excludes `/you`, `/likes`, `/tracks`, etc.)
-4. For each follower (up to `MAX_PER_RUN`):
-   - Opens profile in new tab
-   - Adds human-like delays and mouse movements
-   - Clicks "Message" button
-   - Types your message with realistic delays (35-95ms per character)
-   - Sends the message
-   - Closes tab
-   - Waits 30s-5min before next user (with occasional longer breaks)
-
-5. Prints summary and JSON results at the end
-
-## Message History & Duplicate Prevention
-
-The script automatically tracks who you've already messaged to **prevent duplicate messages**.
-
-### How It Works
-
-- Every successful message is saved to `sent-history.json`
-- On each run, already-messaged users are automatically filtered out
-- Works across multiple runs, even weeks/months apart
-- Crash-safe: saves after each successful send
-
-### Example Workflow
-
-**First run:**
-```bash
-node worker.js
-# Finds 100 followers, messages first 5
-# sent-history.json now contains 5 users
-```
-
-**Second run:**
-```bash
-node worker.js
-# Finds 100 followers, filters out 5 already-messaged
-# Messages next 5 from remaining 95
-# sent-history.json now contains 10 users
-```
-
-**After interruption/crash:**
-```bash
-node worker.js
-# Automatically skips anyone already in sent-history.json
-# Continues from where it left off
-```
-
-### Managing History
-
-**View message history:**
-```bash
-cat sent-history.json
-```
-
-Output:
+`followers.json` structure:
 ```json
-{
-  "lastUpdated": "2025-01-18T10:30:00.000Z",
-  "totalMessaged": 15,
-  "messaged": [
-    "/user1",
-    "/user2",
-    "/user3",
-    ...
-  ]
-}
+[
+  {
+    "nickname": "DJ Johnny K",
+    "url": "/user-279578505",
+    "fullUrl": "https://soundcloud.com/user-279578505"
+  },
+  {
+    "nickname": "Jawher",
+    "url": "/jawherr",
+    "fullUrl": "https://soundcloud.com/jawherr"
+  }
+]
 ```
 
-**Reset history (start fresh):**
-```bash
-rm sent-history.json
-# Next run will message everyone again
+## 🛑 Stopping the Automation
+
+**Method 1: Console**
+```javascript
+stop()
 ```
 
-**Backup history:**
-```bash
-cp sent-history.json sent-history-backup.json
+**Method 2: Close tab**
+- Queue is saved in localStorage
+- Continues when you reopen SoundCloud
+
+**Method 3: Disable script**
+- Click Tampermonkey icon → Toggle script OFF
+
+## 📊 Persistent Log Overlay
+
+The script now includes a **visual log overlay** that stays visible even when navigating between profiles!
+
+**Features:**
+- Shows real-time progress in bottom-right corner of the page
+- Persists across page navigations (doesn't clear like console)
+- Keeps last 50 log entries
+- Auto-scrolls to show latest activity
+- Color-coded messages (green = success, red = error, orange = warning)
+
+**Commands:**
+```javascript
+showLogs()   // Show the overlay
+hideLogs()   // Hide the overlay
+clearLogs()  // Clear all log history
 ```
 
-### In The Output
+**Why it's useful:**
+When the script navigates to different user profiles, the browser console clears. The persistent overlay lets you track what's happening throughout the entire automation process.
 
-```
-📋 Loading message history...
-  ✓ Found 10 previously messaged users
-  ✓ Filtered out 10 already-messaged users
+## 🔧 Troubleshooting
 
-📨 Processing 5 followers...
-```
+### Messages not sending?
 
-Summary includes history stats:
-```
-==================================================
-📊 SUMMARY
-==================================================
-Found profiles:     100
-Already messaged:   10
-Processed:          5
-Successfully sent:  5
-...
-==================================================
-```
+1. Test the Send button:
+   ```javascript
+   testSendClick()
+   ```
 
-### Output
+2. Check button detection:
+   ```javascript
+   findSendButton()
+   ```
 
-```
-🚀 SoundCloud DM Worker Starting...
+3. Look at console logs - they show detailed debug info
 
-Config:
-  - Message: "Hey! Thanks for following."
-  - Max per run: 5
-  - Followers URL: https://soundcloud.com/andygart/followers
-  - User data dir: ./profile-andygart
-
-🌐 Launching browser (headful mode)...
-📍 Navigating to https://soundcloud.com/andygart/followers...
-✅ Already logged in
-
-📜 Auto-scrolling to load followers (max 60s)...
-  ✓ Reached end of followers list
-🔍 Extracting follower profile links...
-  ✓ Found 42 unique follower profiles
-
-📨 Processing 5 followers...
-
-[1/5] Processing /user1...
-  ✅ Message sent successfully
-  ⏱️  Waiting 127s before next user...
-
-[2/5] Processing /user2...
-  ⏭️  Skipped: Message button not found
-  ⏱️  Waiting 83s before next user...
-
-...
-
-==================================================
-📊 SUMMARY
-==================================================
-Found profiles:     42
-Processed:          5
-Successfully sent:  4
-Skipped:            1
-Failed:             0
-==================================================
-
-JSON Result:
-{
-  "found": 42,
-  "processed": 5,
-  "sent": 4,
-  "failed": 0,
-  "skipped": 1,
-  "details": [...]
-}
-```
-
-## Configuration
-
-All timing and behavior settings are at the top of `worker.js` in the `CONFIG` object:
+### Want to re-send to someone?
 
 ```javascript
-const CONFIG = {
-  MESSAGE: process.env.MESSAGE || "Hey! Thanks for following.",
-  MAX_PER_RUN: parseInt(process.env.MAX_PER_RUN || "5", 10),
-  FOLLOWERS_URL: process.env.FOLLOWERS_URL || "...",
-
-  // Timing configs (in ms)
-  SCROLL_DURATION: 60000,        // Max scroll time
-  DELAY_BETWEEN_USERS_MIN: 30000,   // 30s minimum
-  DELAY_BETWEEN_USERS_MAX: 300000,  // 5min maximum
-  TYPING_DELAY_MIN: 35,
-  TYPING_DELAY_MAX: 95,
-  // ...
-};
+removeFromHistory("/username")
 ```
 
-### Adjusting for Speed vs Safety
+### Clear everything and start over?
 
-**For faster processing** (higher risk):
-- Reduce `DELAY_BETWEEN_USERS_MIN/MAX` to 10-30s
-- Increase `MAX_PER_RUN` to 20-50
+```javascript
+clearHistory()
+stop()
+```
 
-**For safer processing** (lower risk):
-- Keep defaults or increase delays
-- Keep `MAX_PER_RUN` low (5-10)
-- Run multiple times per day instead of bulk runs
+## ⚠️ Important Notes
 
-## HOTSPOTS for Customization
+- **Be respectful**: Don't spam users
+- **Reasonable delays**: Default is 30 seconds between messages
+- **Monitor for blocks**: SoundCloud may rate-limit if you send too fast
+- **History is saved**: Users won't receive duplicate messages
+- **Manual control**: You can stop anytime with `stop()`
 
-The code includes `HOTSPOT` comments at key locations you might need to adjust:
+## 📄 Files Explained
 
-1. **Typing speed** - `typeHuman()` function (worker.js:50)
-2. **Scroll duration** - `autoScroll()` function (worker.js:151)
-3. **Profile link pattern** - `extractFollowerLinks()` (worker.js:188)
-4. **Message button selectors** - `clickMessageButton()` (worker.js:248)
-5. **Composer selectors** - `focusComposer()` (worker.js:302)
-6. **Delay timing** - `CONFIG` object (worker.js:16)
+### `all-in-one.user.js`
+Main Tampermonkey script. Contains:
+- All 2170 followers embedded
+- Message automation logic
+- History tracking
+- Human-like behavior (typing delays, keyboard events)
 
-## Error Handling
+### `semi-auto-script.js`
+Helper script to collect followers from SoundCloud. Features:
+- Auto-scrolls to load all followers
+- Extracts real nicknames (not just URLs)
+- Returns JSON array format
 
-- **Screenshots**: Saved to `./error-{username}-{timestamp}.png` on failures
-- **Captcha**: Script stops immediately if captcha detected
-- **Retries**: No automatic retries (to avoid being flagged)
-- **Skip**: If Message button not found, marks as "skipped" and continues
+### `followers.json`
+Your follower data (2170 users). Already collected and ready to use.
 
-## Anti-Bot Hygiene
+### `tampermonkey-minimal-test.js`
+Minimal test script to verify Tampermonkey is working.
 
-This script uses conservative, non-evasive measures:
+## 🎯 Example Workflow
 
-- Headful browser (not headless)
-- Stealth plugin to mask automation
-- Human-like typing delays (35-95ms per character)
-- Random mouse movements and scrolling
-- Low throughput (5-10 per run recommended)
-- Long delays between users (30s-5min with jitter)
-- Occasional longer breaks (20% chance of 2x delay)
+```bash
+# 1. Install script (one-time)
+# Drag all-in-one.user.js into browser → Install
 
-**Not included**: Proxy rotation, captcha solving, mass parallelism (all out of scope).
+# 2. Go to SoundCloud
+# Open console (F12)
 
-## Troubleshooting
+# 3. Start sending
+start(5)  # Send to 5 users
 
-### "Message button not found"
-SoundCloud may have changed their UI. Update selectors in `clickMessageButton()` function.
+# 4. Check progress
+checkStatus()  # See: sent, skipped, failed
 
-### "Captcha detected"
-- Wait 24-48 hours before next run
-- Reduce `MAX_PER_RUN`
-- Increase delays between users
+# 5. View history
+viewHistory()  # See who received messages
 
-### Session expired
-Delete `./profile-andygart/` folder and log in again.
+# 6. Continue later
+start(10)  # Send to 10 more (skips already-messaged users)
+```
 
-### Can't log in / "Unexpected error" / Google blocks Chromium
+## 📞 Support
 
-**Problem:** SoundCloud shows "unexpected error" or Google login says "This browser is not safe"
+If something isn't working:
+1. Check console for error messages
+2. Use `findSendButton()` to debug
+3. Make sure you're logged into SoundCloud
+4. Try `testSendClick()` to test sending manually
 
-**Solution:** Use your existing Chrome browser instead of Chromium
+## 🎵 Current Message
 
-1. **Terminal 1 - Launch Chrome with debugging:**
-   ```bash
-   /Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome --remote-debugging-port=9222 --user-data-dir="$HOME/Library/Application Support/Google/Chrome"
-   ```
+```
+Hey {nickname}, the new Tonica is out!
+If you are reading this, it means you appreciate true sound and real music made by
+someone who, just like you, cannot live a day without it.
 
-2. **Update `.env`:**
-   ```env
-   USE_EXISTING_CHROME=true
-   CHROME_DEBUG_PORT=9222
-   ```
+This is the Eighth episode - a truly special number that symbolizes infinity. Maybe
+it is because of the long journey I have been on this past year, and through music,
+I want to share that experience with you.
 
-3. **Terminal 2 - Run worker:**
-   ```bash
-   node worker.js
-   ```
+During our time together, we will travel across stunning places on our beautiful
+planet. The journey blends House, Progressive, Deep, and Breaks - everything we love
+for a great time and a lifted mood. It will make you dance, smile, and maybe even
+think about something beyond the material world.
 
-The script will connect to your Chrome (where you're already logged in) instead of launching Chromium.
+Be kind to yourself and to others, and the world will respond with love.
+Your, Andy Gart!
 
-See [CHROME-LOGIN-FIX.md](CHROME-LOGIN-FIX.md) for detailed instructions.
+https://soundcloud.com/andygart/tonica-8
+```
 
-### Script hangs
-- Check browser window for manual interaction needed
-- Look for captcha or login prompts
+---
 
-## Safety & Ethics
-
-- **Rate limits**: Start with 5-10 messages per run
-- **Frequency**: Don't run multiple times per hour
-- **Content**: Keep messages personal and relevant
-- **Consent**: Only message people who followed you
-- **Compliance**: Respect SoundCloud's ToS
-
-## License
-
-MIT
+**Status**: ✅ Ready to use - 2170 followers loaded
